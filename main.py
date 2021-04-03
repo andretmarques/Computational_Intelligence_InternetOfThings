@@ -31,27 +31,27 @@ meanAll = df[column].mean()
 sdAll = df[column].std()
 
 
-def isOutlier(dateIn, column, dataframe):
+def isOutlier(dateIn, dataframe):
     if (meanAll - (k * sdAll)) < dataframe[column][pd.Timestamp(dateIn)] < (meanAll + (k * sdAll)):
         return False
     else:
         return True
 
 
-def findAvalue(dateIn, column):
+def findAvalue(dateIn):
     value = df[column][pd.Timestamp(dateIn)]
     print("########################")
     print(dateIn, column)
     print(value)
-    if isOutlier(dateIn, column, df):
+    if isOutlier(dateIn, df):
         print("Is Outlier")
     else:
         print("Not an Outlier")
     return value
 
 
-def removeOutlier(dateIn, column):
-    if isOutlier(dateIn, column, dfRemove):
+def removeOutlier(dateIn):
+    if isOutlier(dateIn, dfRemove):
         # if an outlier it simply drops
         dfRemove.drop(pd.Timestamp(dateIn), inplace=True)
         print("removed outlier ")
@@ -59,13 +59,13 @@ def removeOutlier(dateIn, column):
         print("\n")
 
 
-def changeToPrevious(dateIn, column):
+def changeToPrevious(dateIn):
     dateInFormatted = pd.to_datetime(dateIn)  # to be compared with future i in the for
-    if isOutlier(dateIn, column, dfPrevious):
+    if isOutlier(dateIn, dfPrevious):
         for i in dfPrevious[dateIn::-1].index.astype(str):  # reverse "for" starting in the date dateIn
             if len(dfPrevious[dateIn::-1]) == 1:
                 dfPrevious.drop(pd.Timestamp(i), inplace=True)
-            elif not isOutlier(i, column, dfPrevious):  # check if the previous is not an outlier
+            elif not isOutlier(i, dfPrevious):  # check if the previous is not an outlier
                 if i != dateInFormatted:  # confirm it is not the same date
                     print("Row with index: ")
                     print(dateInFormatted)
@@ -75,18 +75,18 @@ def changeToPrevious(dateIn, column):
                     break
 
 
-def interpolation(dateIn, column):
+def interpolation(dateIn):
     dateFormatted = pd.to_datetime(dateIn)
     listToDrop = []  # only used for the nextValues to prevent no Values not Outliers
-    if isOutlier(dateIn, column, df):  # checks if it is an outlier
+    if isOutlier(dateIn, df):  # checks if it is an outlier
         if len(dfInterpolate[dateIn::-1]) > 1:  # checks if its not the first value of all
             previousDate = dfInterpolate[dateIn::-1].index[1]
             previousValue = dfInterpolate[column][pd.Timestamp(previousDate)]
 
-            if isOutlier(previousDate, column, dfInterpolate):
+            if isOutlier(previousDate, dfInterpolate):
                 for i in dfInterpolate[dateIn::-1].index:
                     # goes on until it find a non-outlier value
-                    if not isOutlier(i, column, dfInterpolate):
+                    if not isOutlier(i, dfInterpolate):
                         previousDate = dfInterpolate[i::-1].index.array[1]
                         previousValue = dfInterpolate[column][pd.Timestamp(previousDate)]
                         break
@@ -99,11 +99,11 @@ def interpolation(dateIn, column):
             nextDate = dfInterpolate[dateIn::1].index[1]
             nextValue = dfInterpolate[column][pd.Timestamp(nextDate)]
 
-            if isOutlier(nextDate, column, dfInterpolate):
+            if isOutlier(nextDate, dfInterpolate):
                 for i in dfInterpolate[dateIn::1].index:
                     # goes on until it finds a value or reaches the end
                     listToDrop.append(i)
-                    if not isOutlier(i, column, dfInterpolate):
+                    if not isOutlier(i, dfInterpolate):
                         nextDate = dfInterpolate[i::1].index.array[1]
                         nextValue = dfInterpolate[column][pd.Timestamp(nextDate)]
                         break
@@ -159,23 +159,23 @@ def plotFunction(dfMix, title):
 if __name__ == '__main__':
     # Returns all values indicating which are outliers and those which are not
     for index in df.index:
-        findAvalue(index, column)
+        findAvalue(index)
 
     # Removes all outliers
     for index in dfRemove.index:
-        removeOutlier(index, column)
+        removeOutlier(index)
     plotFunction(dfRemove, "After Removing Ouliers in column " + column + " with k=" + str(k))
 
     # Changes all outliers to the previous value. If no previous value "not outlier" it drops the row
     for index in dfPrevious.index:
-        changeToPrevious(index, column)
+        changeToPrevious(index)
     plotFunction(dfPrevious, "After Changing to Previous in column " + column + " with k=" + str(k))
 
     # Interpolates the results of the outliers with the previous and the nex
     # If the next or previous values are outliers, it iterates until it find a value which is not an outlier
     # If it reaches the end and hasn't found any value, it drops all the values starting from the former mentioned
     for index in dfInterpolate.index:
-        interpolation(index, column)
+        interpolation(index)
     plotFunction(dfInterpolate, "After Interpolation in column " + column + " with k=" + str(k))
 
     variationClose()
