@@ -138,13 +138,17 @@ def interpolateFormula(dateFormatted, nextDate, previousDate, nextValue, previou
 def variationClose():
     plt.style.use('ggplot')
     plt.hist(dfB['Close'].diff(), ec="black")
+    plt.ylabel("Frequency")
     plt.title("Close Variation between a day and its previous day")
+    plt.xlabel("Variation from the previous day")
     plt.show()
 
 
 def highLow():
     plt.style.use('ggplot')
     plt.hist(dfB['High'] - dfB['Low'], ec="black")
+    plt.ylabel("Frequency")
+    plt.xlabel("Difference from High to Low")
     plt.title("High-Low Variation")
     plt.show()
 
@@ -171,8 +175,8 @@ if __name__ == '__main__':
         changeToPrevious(index)
     plotFunction(dfPrevious, "After Changing to Previous in column " + column + " with k=" + str(k))
 
-    # Interpolates the results of the outliers with the previous and the nex
-    # If the next or previous values are outliers, it iterates until it find a value which is not an outlier
+    # Interpolates the results of the outliers with the previous and the next
+    # If the next or previous values are outliers, it iterates until it finds a value which is not an outlier
     # If it reaches the end and hasn't found any value, it drops all the values starting from the former mentioned
     for index in dfInterpolate.index:
         interpolation(index)
@@ -181,3 +185,28 @@ if __name__ == '__main__':
     variationClose()
 
     highLow()
+
+    plt.plot(dfB['Open'])
+    plt.title("Open EURUSD_Daily_Ask_2009.10.07_2019.10.07.csv")
+    plt.gcf().autofmt_xdate()
+    plt.show()
+
+    plt.plot(dfB['High'])
+    plt.title("High EURUSD_Daily_Ask_2009.10.07_2019.10.07.csv")
+    plt.gcf().autofmt_xdate()
+    plt.show()
+
+    plt.plot(dfB['Low'])
+    plt.title("Low EURUSD_Daily_Ask_2009.10.07_2019.10.07.csv")
+    plt.gcf().autofmt_xdate()
+    plt.show()
+
+    plt.plot(dfB['Close'])
+    plt.title("Close EURUSD_Daily_Ask_2009.10.07_2019.10.07.csv")
+    plt.gcf().autofmt_xdate()
+    plt.show()
+
+    plt.plot(dfB['Volume'])
+    plt.title("Volume EURUSD_Daily_Ask_2009.10.07_2019.10.07.csv")
+    plt.gcf().autofmt_xdate()
+    plt.show()
